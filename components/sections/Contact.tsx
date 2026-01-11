@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Button from '../ui/Button';
-import { FaPaperPlane, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaPaperPlane, FaEnvelope, FaMapMarkerAlt, FaWhatsapp } from 'react-icons/fa';
 import { SOCIAL_LINKS } from '../../constants';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -46,18 +46,35 @@ const Contact: React.FC = () => {
       window.gtag('event', 'generate_lead', {
         event_category: 'Contact',
         event_label: formData.subject || 'General Inquiry',
-        // value: 1 // Optional value
       });
-      console.log('GA Event Sent: generate_lead');
-    } else {
-      console.warn('Google Analytics (gtag) not found on window object.');
     }
-
-    // Here you would typically send the data to your backend
-    // fetch('http://localhost:5000/api/v1/contact/submit', { ... })
 
     alert('Message sent! (Tracked in Google Analytics)');
     setFormData({ name: '', email: '', subject: '', message: '' });
+  };
+
+  const handleWhatsApp = () => {
+    const { name, email, subject, message } = formData;
+    
+    // Construct the message
+    const text = `*New Contact Request*\n\n*Name:* ${name}\n*Email:* ${email}\n*Subject:* ${subject}\n*Message:* ${message}`;
+    
+    // Encode for URL
+    const encodedText = encodeURIComponent(text);
+    
+    // WhatsApp URL (Moldova format: 373...)
+    const whatsappUrl = `https://wa.me/37376856195?text=${encodedText}`;
+    
+    // Track click in Analytics
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'whatsapp_click', {
+        event_category: 'Contact',
+        event_label: 'WhatsApp Button',
+      });
+    }
+
+    // Open in new tab
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -180,9 +197,20 @@ const Contact: React.FC = () => {
                 />
               </div>
 
-              <Button className="w-full" icon={<FaPaperPlane />} type="submit">
-                {t.contact.form.send}
-              </Button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Button className="w-full" icon={<FaPaperPlane />} type="submit">
+                  {t.contact.form.send}
+                </Button>
+                
+                <button
+                  type="button"
+                  onClick={handleWhatsApp}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-bold transition-all duration-300 bg-[#25D366] text-white hover:bg-[#128C7E]"
+                >
+                  <FaWhatsapp className="text-xl" />
+                  <span>WhatsApp</span>
+                </button>
+              </div>
             </form>
           </motion.div>
         </div>
