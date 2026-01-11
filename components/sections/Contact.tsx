@@ -103,7 +103,7 @@ const Contact: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-sm text-white/40 uppercase tracking-wider">{t.contact.email}</h4>
-                  <a href="mailto:hello@mikedev.com" className="text-xl font-medium hover:text-primary transition-colors">hello@mikedev.com</a>
+                  <a href="mailto:stylehtml.dev@gmail.com" className="text-xl font-medium hover:text-primary transition-colors">stylehtml.dev@gmail.com</a>
                 </div>
               </div>
               
@@ -113,7 +113,7 @@ const Contact: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-sm text-white/40 uppercase tracking-wider">{t.contact.location}</h4>
-                  <p className="text-xl font-medium">San Francisco, CA</p>
+                  <p className="text-xl font-medium">Chisinau, Moldova</p>
                 </div>
               </div>
             </div>
