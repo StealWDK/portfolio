@@ -1,0 +1,168 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  role          Role      @default(ADMIN)
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  portfolioProjects PortfolioProject[]
+  
+  @@map("admins")
+}
+
+model PortfolioProject {
+  id              String    @id @default(uuid())
+  titleRO         String
+  titleRU         String
+  descriptionRO   String    @db.Text
+  descriptionRU   String    @db.Text
+  category        Category
+  mainImage       String
+  beforeImages    String[]
+  afterImages     String[]
+  allImages       String[]
+  featured        Boolean   @default(false)
+  completionDate  DateTime
+  location        String?
+  duration        String?   // e.g., "2 weeks"
+  clientName      String?
+  published       Boolean   @default(true)
+  viewCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  
+  adminId         String
+  admin           Admin     @relation(fields: [adminId], references: [id])
+  
+  @@index([category, published])
+  @@index([featured])
+  @@index([completionDate])
+  @@map("portfolio_projects")
+}
+
+model ContactSubmission {
+  id           String         @id @default(uuid())
+  name         String
+  email        String
+  phone        String
+  message      String         @db.Text
+  serviceType  ServiceType
+  language     Language       @default(RO)
+  status       SubmissionStatus @default(NEW)
+  ipAddress    String
+  userAgent    String?
+  source       String?        // Which page they submitted from
+  notes        String?        @db.Text
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt 
+  
+  @@index([status, createdAt])
+  @@index([email])
+  @@map("contact_submissions")
+}
+
+model Service {
+  id            String    @id @default(uuid())
+  nameRO        String
+  nameRU        String
+  descriptionRO String    @db.Text
+  descriptionRU String    @db.Text
+  shortDescRO   String
+  shortDescRU   String
+  icon          String
+  order         Int       @default(0)
+  published     Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt 
+  
+  @@index([order])
+  @@map("services")
+}
+
+model Testimonial {
+  id          String    @id @default(uuid())
+  clientName  String
+  contentRO   String    @db.Text
+  contentRU   String    @db.Text
+  rating      Int       @default(5)
+  projectType String
+  date        DateTime
+  approved    Boolean   @default(false)
+  featured    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt 
+  
+  @@index([approved, featured])
+  @@map("testimonials")
+}
+
+model Newsletter {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  language    Language  @default(RO)
+  isActive    Boolean   @default(true)
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+  
+  @@map("newsletter_subscribers")
+}
+
+enum Role {
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum Category {
+  KITCHEN
+  BATHROOM
+  BEDROOM
+  LIVING_ROOM
+  FULL_RENOVATION
+  EXTERIOR
+  COMMERCIAL
+  OTHER
+}
+
+enum ServiceType {
+  KITCHEN_RENOVATION
+  BATHROOM_RENOVATION
+  FULL_HOUSE_RENOVATION
+  APARTMENT_RENOVATION
+  PAINTING
+  FLOORING
+  PLUMBING
+  ELECTRICAL
+  CARPENTRY
+  OTHER
+}
+
+enum Language {
+  RO
+  RU
+}
+
+enum SubmissionStatus {
+  NEW
+  IN_PROGRESS
+  CONTACTED
+  COMPLETED
+  SPAM
+  CANCELLED
+}
