@@ -54,10 +54,8 @@ const Contact: React.FC = () => {
   };
 
   const handleWhatsApp = () => {
-    const { message } = formData;
-    
-    // Construct the message with "Buna Ziua!" greeting and the message content only
-    const text = message ? `Buna Ziua!\n\n${message}` : 'Buna Ziua!';
+    // Strictly "Buna Ziua!" only
+    const text = 'Buna Ziua!';
     
     // Encode for URL
     const encodedText = encodeURIComponent(text);
