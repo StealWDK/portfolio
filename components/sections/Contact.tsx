@@ -56,8 +56,8 @@ const Contact: React.FC = () => {
   const handleWhatsApp = () => {
     const { name, email, subject, message } = formData;
     
-    // Construct the message
-    const text = `*New Contact Request*\n\n*Name:* ${name}\n*Email:* ${email}\n*Subject:* ${subject}\n*Message:* ${message}`;
+    // Construct the message with "Buna Ziua!" greeting
+    const text = `Buna Ziua!\n\n*Name:* ${name}\n*Email:* ${email}\n*Subject:* ${subject}\n*Message:* ${message}`;
     
     // Encode for URL
     const encodedText = encodeURIComponent(text);
