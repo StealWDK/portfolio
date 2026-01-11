@@ -1,12 +1,64 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Button from '../ui/Button';
 import { FaPaperPlane, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 import { SOCIAL_LINKS } from '../../constants';
 import { useLanguage } from '../../context/LanguageContext';
 
+// Add type definition for gtag
+declare global {
+  interface Window {
+    gtag: (
+      command: 'event',
+      action: string,
+      params?: {
+        event_category?: string;
+        event_label?: string;
+        value?: number;
+        [key: string]: any;
+      }
+    ) => void;
+  }
+}
+
 const Contact: React.FC = () => {
   const { t } = useLanguage();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Log for debugging
+    console.log('Form submitted:', formData);
+
+    // Send event to Google Analytics
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'generate_lead', {
+        event_category: 'Contact',
+        event_label: formData.subject || 'General Inquiry',
+        // value: 1 // Optional value
+      });
+      console.log('GA Event Sent: generate_lead');
+    } else {
+      console.warn('Google Analytics (gtag) not found on window object.');
+    }
+
+    // Here you would typically send the data to your backend
+    // fetch('http://localhost:5000/api/v1/contact/submit', { ... })
+
+    alert('Message sent! (Tracked in Google Analytics)');
+    setFormData({ name: '', email: '', subject: '', message: '' });
+  };
 
   return (
     <section id="contact" className="py-24 bg-surface relative overflow-hidden">
@@ -74,15 +126,18 @@ const Contact: React.FC = () => {
             viewport={{ once: true }}
             className="glass-card p-8 rounded-3xl"
           >
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="name" className="text-sm font-medium text-white/60">{t.contact.form.name}</label>
                   <input 
                     type="text" 
                     id="name"
+                    value={formData.name}
+                    onChange={handleChange}
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     placeholder={t.contact.form.placeholderName}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -90,8 +145,11 @@ const Contact: React.FC = () => {
                   <input 
                     type="email" 
                     id="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     placeholder={t.contact.form.placeholderEmail}
+                    required
                   />
                 </div>
               </div>
@@ -101,8 +159,11 @@ const Contact: React.FC = () => {
                 <input 
                   type="text" 
                   id="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   placeholder={t.contact.form.placeholderSubject}
+                  required
                 />
               </div>
 
@@ -111,12 +172,15 @@ const Contact: React.FC = () => {
                 <textarea 
                   id="message"
                   rows={4}
+                  value={formData.message}
+                  onChange={handleChange}
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none"
                   placeholder={t.contact.form.placeholderMessage}
+                  required
                 />
               </div>
 
-              <Button className="w-full" icon={<FaPaperPlane />}>
+              <Button className="w-full" icon={<FaPaperPlane />} type="submit">
                 {t.contact.form.send}
               </Button>
             </form>
